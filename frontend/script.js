@@ -3,21 +3,39 @@ const xhttp = new XMLHttpRequest();
 
 const formatter = new Intl.NumberFormat("en-US", {
   style: "currency",
-  currency: "USD",
+  currency: "IDR",
   signDisplay: "always",
 });
 
-xhttp.onload = function () {
-    const response = JSON.parse(xhttp.responseText);
+const list = document.getElementById("transaction-list");
+const form = document.getElementById("transactionForm");
+const status = document.getElementById("status");
+const balance = document.getElementById("balance");
+const income = document.getElementById("income");
+const expense = document.getElementById("expense");
 
-    const transactionList = document.getElementById("transaction-list");
+// form.addEventListener("submit", addTransaction);
 
-    response.expenses.forEach(expense => {
-        const sign = "income" === type ? 1 : -1;
+function renderList() {
+    list.innerHTML = "";
 
-        const li = document.createElement("li");
+    xhttp.onload = function () {        
+        const response = JSON.parse(xhttp.responseText);
 
-        li.innerHTML = `
+        const transactionList = document.getElementById("transaction-list");
+
+        status.textContent = "";
+        if (response.expenses.length === 0) {
+            status.textContent = "No transactions.";
+            return;
+        }
+
+        response.expenses.forEach(expense => {
+            const sign = "income" === type ? 1 : -1;
+
+            const li = document.createElement("li");
+
+            li.innerHTML = `
             <div class="name">
                 <h4>${expense.description}</h4>
                 <p>${new Date(expense.date).toLocaleDateString()}</p>
@@ -34,9 +52,13 @@ xhttp.onload = function () {
             </div>
         `;
         
-        transactionList.appendChild(li);
-    });
-};
+            transactionList.appendChild(li);
+        });
+    };
 
-xhttp.open("GET", "http://localhost:3030/expenses");
-xhttp.send();
+    xhttp.open("GET", "http://localhost:3030/expenses");
+    xhttp.send();
+}
+
+
+renderList();
