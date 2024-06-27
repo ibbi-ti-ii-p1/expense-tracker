@@ -1,6 +1,3 @@
-// GET all expenses data from /expenses API
-const xhttp = new XMLHttpRequest();
-
 const formatter = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "IDR",
@@ -17,6 +14,8 @@ const expense = document.getElementById("expense");
 // form.addEventListener("submit", addTransaction);
 
 function renderList() {
+    const xhttp = new XMLHttpRequest();
+
     list.innerHTML = "";
 
     xhttp.onload = function () {        
@@ -59,6 +58,5 @@ function renderList() {
     xhttp.open("GET", "http://localhost:3030/expenses");
     xhttp.send();
 }
-
 
 renderList();
