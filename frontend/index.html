@@ -33,17 +33,22 @@
 
             <form id="transactionForm">
                 <div>
-                    <label for="type">
+                    <!-- <label for="type">
                         <input type="checkbox" name="type" id="type" />
                         <div class="option">
                             <span>Expense</span>
                             <span>Income</span>
                         </div>
-                    </label>
+                    </label> -->
+                    <label for="type">Type</label>
+                    <select name="type" required>
+                        <option value="expense">Expense</option>
+                        <option value="income">Income</option>
+                    </select>
                 </div>
                 <div>
                     <label for="name">Description</label>
-                    <input type="text" name="name" required />
+                    <input type="text" name="description" required />
                 </div>
                 <div>
                     <label for="amount">Amount</label>

@@ -11,7 +11,78 @@ const balance = document.getElementById("balance");
 const income = document.getElementById("income");
 const expense = document.getElementById("expense");
 
-// form.addEventListener("submit", addTransaction);
+form.addEventListener("submit", addTransaction);
+
+function addTransaction(e) {
+    e.preventDefault();
+
+    const xhttp = new XMLHttpRequest();
+    xhttp.onload = () => {
+        const response = JSON.parse(xhttp.responseText);
+
+        if (response.error) {
+            alert("Error: " + response.error);
+        } else {
+            form.reset();
+
+            updateTotal();
+            renderList();
+        }
+    };
+
+    xhttp.open("POST", "http://localhost:3030/expenses");
+    xhttp.send(JSON.stringify({
+        amount: parseFloat(form.amount.value),
+        type: form.type.value,
+        description: form.description.value,
+        date: new Date(form.date.value),
+    }));
+};
+
+function updateTotal() {
+    const xhttp = new XMLHttpRequest();
+    
+    xhttp.onload = function () {        
+        const response = JSON.parse(xhttp.responseText);
+
+        const transactions = response.expenses;
+
+        const incomeTotal = transactions
+                .filter((trx) => trx.type === "income")
+                .reduce((total, trx) => total + trx.amount, 0);
+
+        const expenseTotal = transactions
+            .filter((trx) => trx.type === "expense")
+            .reduce((total, trx) => total + trx.amount, 0);
+
+        const balanceTotal = incomeTotal - expenseTotal;
+
+        balance.textContent = formatter.format(balanceTotal).substring(1);
+        income.textContent = formatter.format(incomeTotal);
+        expense.textContent = formatter.format(expenseTotal * -1);
+    };
+
+    xhttp.open("GET", "http://localhost:3030/expenses");
+    xhttp.send();
+}
+
+function deleteTransaction(id) {    
+    const xhttp = new XMLHttpRequest();
+    xhttp.onload = () => {
+        const response = JSON.parse(xhttp.responseText);
+
+        if (response.error) {
+            alert("Error: " + response.error);
+        } 
+
+        updateTotal();
+        renderList();
+    };
+
+    xhttp.open("DELETE", `http://localhost:3030/expenses?id=${id}`);
+    xhttp.send();
+}
+
 
 function renderList() {
     const xhttp = new XMLHttpRequest();
@@ -30,7 +101,7 @@ function renderList() {
         }
 
         response.expenses.forEach(expense => {
-            const sign = "income" === type ? 1 : -1;
+            const sign = "income" === expense.type ? 1 : -1;
 
             const li = document.createElement("li");
 
@@ -60,3 +131,4 @@ function renderList() {
 }
 
 renderList();
+updateTotal();
