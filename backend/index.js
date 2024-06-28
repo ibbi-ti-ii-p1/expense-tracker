@@ -47,6 +47,53 @@ const server = http.createServer((req, res) => {
                     }))
                 }
             })
+        } else if (req.method === "POST") {
+            let body = "";
+            req.on('data', (chunk) => {
+                body += chunk.toString();
+            });
+
+            req.on('end', () => {
+                const data = JSON.parse(body);
+
+                db.run(`INSERT INTO expenses (amount, type, description, date) 
+                    VALUES (?, ?, ?, ?)`, 
+                    [data.amount, data.type, data.description, data.date], (err) => {
+                    if (err) {
+                        console.log("Error inserting expense" + err.message);
+                        res.end(JSON.stringify({
+                            "error": err.message
+                        }))
+                    } else {
+                        res.end(JSON.stringify({
+                            "message": "Expense inserted"
+                        }))
+                    }
+                })
+            });
+        } else if (req.method === "DELETE") {
+            let id = parsedUrl.query.id;
+
+            db.run("DELETE FROM expenses WHERE id = ?", [id], (err) => {
+                if (err) {
+                    console.log("Error deleting expense" + err.message);
+                    res.end(JSON.stringify({
+                        "error": err.message
+                    }))
+                } else {
+                    res.end(JSON.stringify({
+                        "message": "Expense deleted"
+                    }))
+                }
+            })
+        } else if (req.method === "OPTIONS") {
+            if (!res.headersSent) { 
+                res.writeHead(200, {
+                    'Access-Control-Allow-Methods': 'DELETE',
+                    'Access-Control-Allow-Headers': 'Content-Type',
+                });
+            }
+            res.end();
         }
     }
 
